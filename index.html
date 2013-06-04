@@ -1,0 +1,150 @@
+ <!doctype html>
+ <html lang="en">
+ <head>
+ 	<meta charset="UTF-8">
+ 	<title>Backbone</title>
+ 	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+ 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+ 	<script src="underscore.js"></script>
+ 	<script src="backbone.js"></script>
+
+ 	<script>
+ 		$(document).ready(function () {
+ 			
+ 		
+	 		var LibraryItem = Backbone.Model.extend({
+	 			title: 'Lord of the rings',
+	 			author: 'tolkien',
+	 			price: 50
+	 		});
+
+	 		var LibraryItemView = Backbone.View.extend({
+	 			initialize: function () {
+	 				this.render();
+	 			},
+	 			render: function () {
+	 				this.$el.html(_.template($('#book_template').html(), this.model.toJSON()));
+	 				
+	 				return this;
+	 			}
+	 		});
+
+
+	 		var libraryItem = new LibraryItem({
+	 			title: 'Javascript for noobs',
+	 			author: 'Stoyan Stefanov',
+	 			price: 156
+	 		})
+
+	 		var libraryView = new LibraryItemView({
+	 			model: libraryItem,
+	 			el: $('#libraryContainer')
+	 		});
+
+	 		var LibraryCollection = Backbone.Collection.extend({
+	 			model: LibraryItem
+	 		});
+
+	 		var library = new LibraryCollection();
+
+	 		library.add([{
+	 			title: 'the great gatzy',
+	 			author: 'nickelodeon',
+	 			price: 10
+	 		},
+	 		{
+	 			title: 'Futai cu ceai',
+	 			author: 'sebika',
+	 			price: 50
+	 		},
+	 		{
+	 			title: 'Gorillaz',
+	 			author: 'the naked back',
+	 			price: 10
+	 		},
+	 		{
+	 			title: 'Preistoria',
+	 			author: 'Neagu Djuvara',
+	 			price: 50
+	 		}])
+
+	 		library.add({
+	 			title: 'Flying Circus',
+	 			author: 'Eleonora David',
+	 			price: 50
+	 		},
+	 		{
+	 			at: 3
+	 		});
+
+	 		var LibraryCollectionView = Backbone.View.extend({
+	 			initialize: function () {
+	 				
+	 				//cache oneself
+	 				var self = this;
+
+	 				//create an array of views
+	 				this.booksViews = [];
+
+	 				//populate books array
+	 				this.collection.each(function (item) {
+	 					self.booksViews.push(new LibraryItemView({
+	 						model: item
+	 					}))
+	 				});
+
+	 				this.render();
+
+	 			},
+	 			render: function () {
+	 				var self = this;
+
+	 				_(this.booksViews).each(function (item) {
+	 					$('#libraryView').append(item.render().$el);
+	 				})
+	 			}
+	 		})
+
+	 		var libraryCollectionView = new LibraryCollectionView ({
+	 			collection: library
+	 		})
+
+ 		});
+
+
+ 	</script>
+ </head>
+ <body>
+ 	<div class="container">
+ 		<div class="row">
+ 			<div class="span4">
+ 				<h4>Model view</h4>
+ 				<div id="libraryContainer"></div>
+ 			</div>
+ 			<div class="span4">
+ 				<h4>Collection view</h4>
+ 				<div id="libraryView"></div>
+ 			</div>
+ 		</div>
+ 	</div>
+ 	
+
+ 	
+ 	<script type="text/template" id="book_template">
+ 		<dl>
+ 			<dt>Book title</dt>
+ 			<dd><%= title %></dd>
+ 			<dt>Book author</dt>
+ 			<dd><%= author %></dd>
+ 			<dt>Book price</dt>
+ 			<dd><%= price %></dd>
+ 		</dl>
+ 	</script>
+
+ 	<script type="text/template" id="booklist_template">
+ 		<ul>
+ 			<li><%= title %></li>
+ 		</ul>
+ 	</script>
+ </body>
+ </html>
