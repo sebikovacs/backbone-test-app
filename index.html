@@ -11,7 +11,9 @@
  	<script>
  		$(document).ready(function () {
  			
- 		
+
+
+ 			//Library item
 	 		var LibraryItem = Backbone.Model.extend({
 	 			title: 'Lord of the rings',
 	 			author: 'tolkien',
@@ -30,51 +32,15 @@
 	 		});
 
 
-	 		var libraryItem = new LibraryItem({
-	 			title: 'Javascript for noobs',
-	 			author: 'Stoyan Stefanov',
-	 			price: 156
-	 		})
-
-	 		var libraryView = new LibraryItemView({
-	 			model: libraryItem,
-	 			el: $('#libraryContainer')
-	 		});
-
+	 		//Library collection
 	 		var LibraryCollection = Backbone.Collection.extend({
-	 			model: LibraryItem
-	 		});
-
-	 		var library = new LibraryCollection();
-
-	 		library.add([{
-	 			title: 'the great gatzy',
-	 			author: 'nickelodeon',
-	 			price: 10
-	 		},
-	 		{
-	 			title: 'Futai cu ceai',
-	 			author: 'sebika',
-	 			price: 50
-	 		},
-	 		{
-	 			title: 'Gorillaz',
-	 			author: 'the naked back',
-	 			price: 10
-	 		},
-	 		{
-	 			title: 'Preistoria',
-	 			author: 'Neagu Djuvara',
-	 			price: 50
-	 		}])
-
-	 		library.add({
-	 			title: 'Flying Circus',
-	 			author: 'Eleonora David',
-	 			price: 50
-	 		},
-	 		{
-	 			at: 3
+	 			model: LibraryItem,
+	 			initialize: function () {
+	 				this.bind('add', this.onModelAdded, this)
+	 			},
+	 			onModelAdded: function () {
+	 				console.log('added a model')
+	 			}
 	 		});
 
 	 		var LibraryCollectionView = Backbone.View.extend({
@@ -98,16 +64,110 @@
 	 			},
 	 			render: function () {
 	 				var self = this;
-
+	 				
 	 				_(this.booksViews).each(function (item) {
+	 					
 	 					$('#libraryView').append(item.render().$el);
 	 				})
 	 			}
 	 		})
 
-	 		var libraryCollectionView = new LibraryCollectionView ({
-	 			collection: library
-	 		})
+	 		//Application router
+	 		var AppRouter = Backbone.Router.extend({
+	 			routes: {
+	 				"books": "listBooks",
+	 				"book/:id": "getBook",
+	 				"*actions": "defaultRoute"
+	 			}
+	 		});
+
+	 		var appRouter = new AppRouter;
+
+
+	 		appRouter.on('route:defaultRoute', function (actions) {
+	 			console.log('actions')
+	 		});
+
+	 		appRouter.on('route:getBook', function (id) {
+	 			
+	 			var library = new LibraryCollection();
+
+	 			library.add([{
+	 				title: 'the great gatzy',
+	 				author: 'nickelodeon',
+	 				price: 10,
+	 				id: 1
+	 			},
+	 			{
+	 				title: 'Futai cu ceai',
+	 				author: 'sebika',
+	 				price: 50,
+	 				id: 2
+	 			},
+	 			{
+	 				title: 'Gorillaz',
+	 				author: 'the naked back',
+	 				price: 10,
+	 				id: 3
+	 			},
+	 			{
+	 				title: 'Preistoria',
+	 				author: 'Neagu Djuvara',
+	 				price: 50,
+	 				id: 4
+	 			}])
+
+
+	 			var libraryView = new LibraryItemView({
+	 				model: library.get(id),
+	 				el: $('#libraryContainer')
+	 			});
+
+	 			
+	 		});
+
+	 		appRouter.on('route:listBooks', function () {
+	 			
+	 			var library = new LibraryCollection([{
+	 				title: 'the great gatzy',
+	 				author: 'nickelodeon',
+	 				price: 10,
+	 				id: 1
+	 			},
+	 			{
+	 				title: 'Futai cu ceai',
+	 				author: 'sebika',
+	 				price: 50,
+	 				id: 2
+	 			},
+	 			{
+	 				title: 'Gorillaz',
+	 				author: 'the naked back',
+	 				price: 10,
+	 				id: 3
+	 			}]);
+
+	 			library.add([
+	 			{
+	 				title: 'hPreistoria',
+	 				author: 'Neagu Djuvara',
+	 				price: 50,
+	 				id: 4
+	 			},
+	 			{
+	 				title: 'nPdreistoria',
+	 				author: 'Neagu Djuvara',
+	 				price: 50,
+	 				id: 5
+	 			}])
+
+	 			var libraryCollectionView = new LibraryCollectionView ({
+	 				collection: library
+	 			})
+	 		});
+
+
+	 		Backbone.history.start();
 
  		});
 
@@ -123,6 +183,7 @@
  			</div>
  			<div class="span4">
  				<h4>Collection view</h4>
+ 				<a href="#/books">Books</a>
  				<div id="libraryView"></div>
  			</div>
  		</div>
@@ -131,9 +192,10 @@
 
  	
  	<script type="text/template" id="book_template">
+ 		
  		<dl>
  			<dt>Book title</dt>
- 			<dd><%= title %></dd>
+ 			<dd><a href="#/book/<%= id %>"><%= title %></a></dd>
  			<dt>Book author</dt>
  			<dd><%= author %></dd>
  			<dt>Book price</dt>
